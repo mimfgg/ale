@@ -24,7 +24,6 @@ steps:
     mkdir -p '$(workspace)'
     shopt -s extglob
     shopt -s dotglob
-    # mv !(gopath) '$(workspace)'
     echo '##vso[task.prependpath]$(GOBIN)'
     echo '##vso[task.prependpath]$(GOROOT)/bin'
   displayName: 'Set up the Go workspace'
@@ -32,6 +31,7 @@ steps:
 - script: |
     go version
     go get -u golang.org/x/lint/golint
+    go get -u github.com/golang/lint
     go get -u github.com/jstemmer/go-junit-report
     go get -u github.com/axw/gocov/gocov
     go get -u github.com/AlekSi/gocov-xml
