@@ -36,20 +36,18 @@ steps:
     go get -u github.com/axw/gocov/gocov
     go get -u github.com/AlekSi/gocov-xml
     go get -u gopkg.in/matm/v1/gocov-html
-    go get -u github.com/Masterminds/glide
-    glide install
   workingDirectory: '$(modulePath)'
   displayName: 'Get dependencies'
 
 - script: |
-    go vet $(glide novendor)
+    go vet ./...
     golint -set_exit_status
   continueOnError: 'true'
   workingDirectory: '$(modulePath)'
   displayName: 'vet and lint'
 
 - script: |
-    go test $(glide novendor) -v -coverprofile=coverage.txt -covermode count 2>&1 | go-junit-report > junit.xml
+    go test ./... -v -coverprofile=coverage.txt -covermode count 2>&1 | go-junit-report > junit.xml
     gocov convert coverage.txt > coverage.json
     gocov-xml < coverage.json > coverage.xml
     gocov-html < coverage.json > index.html
@@ -75,7 +73,7 @@ steps:
     docker login -u $(dockerId) -p $(dockerPassword)
     docker push $(DOCKERTAG)
   displayName: 'push docker image'
-
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
 - task: PublishTestResults@2
   inputs:
