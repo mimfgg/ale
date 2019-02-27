@@ -25,7 +25,6 @@ require (
 	github.com/stretchr/testify v1.2.2
 	go.opencensus.io v0.18.0
 	golang.org/x/crypto v0.0.0-20180904163835-0709b304e793
-	golang.org/x/lint v0.0.0-20181217174547-8f45f776aaf1 // indirect
 	golang.org/x/net v0.0.0-20190125091013-d26f9f9a57f3
 	golang.org/x/oauth2 v0.0.0-20190130055435-99b60b757ec1
 	golang.org/x/sys v0.0.0-20190209173611-3b5209105503
