@@ -13,18 +13,18 @@ variables:
   GOBIN:  '$(GOPATH)/bin' # Go binaries path
   GOROOT: '/usr/local/go1.11' # Go installation path
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
-  modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
   LDFLAGS: -extldflags '-static' -X github.com/alde/ale/version.Version='$(Build.BuildNumber)' -X github.com/alde/ale/version.BuildDate=$(Build.BuildNumber)
   DOCKERTAG: 'alde/ale:$(Build.BuildNumber)'
+  workspace: '$(system.defaultWorkingDirectory)/workspace'
 
 steps:
 - script: |
     mkdir -p '$(GOBIN)'
     mkdir -p '$(GOPATH)/pkg'
-    mkdir -p '$(modulePath)'
+    mkdir -p '$(workspace)'
     shopt -s extglob
     shopt -s dotglob
-    mv !(gopath) '$(modulePath)'
+    # mv !(gopath) '$(workspace)'
     echo '##vso[task.prependpath]$(GOBIN)'
     echo '##vso[task.prependpath]$(GOROOT)/bin'
   displayName: 'Set up the Go workspace'
@@ -36,14 +36,14 @@ steps:
     go get -u github.com/axw/gocov/gocov
     go get -u github.com/AlekSi/gocov-xml
     go get -u gopkg.in/matm/v1/gocov-html
-  workingDirectory: '$(modulePath)'
+  workingDirectory: '$(workspace)'
   displayName: 'Get dependencies'
 
 - script: |
     go vet ./...
     golint -set_exit_status
   continueOnError: 'true'
-  workingDirectory: '$(modulePath)'
+  workingDirectory: '$(workspace)'
   displayName: 'vet and lint'
 
 - script: |
@@ -55,18 +55,18 @@ steps:
     cp junit.xml ./reports/junit.xml
     cp coverage.xml ./reports/coverage.xml
     cp index.html ./reports/index.html
-  workingDirectory: '$(modulePath)'
+  workingDirectory: '$(workspace)'
   displayName: 'Run unit tests'
 
 - script: |
     go build -v -ldflags "$(LDFLAGS)" -o ale github.com/alde/ale/cmd/ale
-  workingDirectory: '$(modulePath)'
+  workingDirectory: '$(workspace)'
   displayName: 'build'
 
 - script: |
     CGO_ENABLED=0 GOOS=linux go build -ldflags "$(LDFLAGS)" -a -installsuffix cgo -o ale github.com/alde/ale/cmd/ale
     docker build -t $(DOCKERTAG) .
-  workingDirectory: '$(modulePath)'
+  workingDirectory: '$(workspace)'
   displayName: 'build docker image'
 
 - script: |
@@ -78,10 +78,10 @@ steps:
 - task: PublishTestResults@2
   inputs:
     testRunner: JUnit
-    testResultsFiles: '$(modulePath)/reports/junit.xml'
+    testResultsFiles: '$(workspace)/reports/junit.xml'
 
 - task: PublishCodeCoverageResults@1
   inputs:
     codeCoverageTool: 'cobertura'
-    summaryFileLocation: '$(modulePath)/reports/coverage.xml'
-    reportDirectory: '$(modulePath)/reports/'
+    summaryFileLocation: '$(workspace)/reports/coverage.xml'
+    reportDirectory: '$(workspace)/reports/'
