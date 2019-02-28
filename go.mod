@@ -38,3 +38,5 @@ require (
 	gopkg.in/yaml.v2 v2.2.2
 	honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099 // indirect
 )
+replace google.golang.org/grpc => google.golang.org/grpc v1.19.0
+replace github.com/openzipkin/zipkin-go => github.com/openzipkin/zipkin-go b722d64 // current master
